@@ -21,24 +21,21 @@ for i, d in enumerate(documents):
     documents=[d.extract_text()]
   )
   
-  # an example prompt
-prompt = "How much annual leave do I get?"
-
-# generate an embedding for the prompt and retrieve the most relevant doc
-response = ollama.embeddings(
-  prompt=prompt,
-  model="mxbai-embed-large"
-)
-results = collection.query(
-  query_embeddings=[response["embedding"]],
-  n_results=1
-)
-data = results['documents'][0][0]
 
 app = Flask(__name__)
 
 @app.route("/<prompt>")
 def query(prompt):
+    # generate an embedding for the prompt and retrieve the most relevant doc
+    response = ollama.embeddings(
+    prompt=prompt,
+    model="mxbai-embed-large"
+    )
+    results = collection.query(
+    query_embeddings=[response["embedding"]],
+    n_results=1
+    )
+    data = results['documents'][0][0]
     # generate a response combining the prompt and data we retrieved in step 2
     output = ollama.generate(
     model="llama2",
