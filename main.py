@@ -1,6 +1,8 @@
 import ollama
 import chromadb
+from flask import Flask
 from pypdf import PdfReader
+from markupsafe import escape
 
 reader = PdfReader("leave_policy.pdf")
 documents = reader.pages
@@ -33,11 +35,13 @@ results = collection.query(
 )
 data = results['documents'][0][0]
 
-# generate a response combining the prompt and data we retrieved in step 2
-output = ollama.generate(
-  model="llama2",
-  prompt=f"Using this data: {data}. Respond to this prompt: {prompt}"
-)
+app = Flask(__name__)
 
-print(output['response'])
-
+@app.route("/<prompt>")
+def query(prompt):
+    # generate a response combining the prompt and data we retrieved in step 2
+    output = ollama.generate(
+    model="llama2",
+    prompt=f"Using this data: {data}. Respond to this prompt: {escape(prompt)}"
+    )
+    return output['response']
